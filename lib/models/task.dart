@@ -13,7 +13,8 @@ enum TaskPriority {
 }
 
 class Task {
-  static const Uuid _uuid = Uuid();
+  static const Uuid _uuid =
+      Uuid(); //// Bad: If uuid is public, external code can corrupt your identifiers
 
   final String id;
   final String timestamp;
