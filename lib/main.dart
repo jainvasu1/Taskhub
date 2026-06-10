@@ -13,10 +13,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'TaskHub',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF21E9F3)),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF21E9F3),
+          brightness: Brightness.dark,
+        ),
         useMaterial3: true,
       ),
-      ,
     );
   }
 }
