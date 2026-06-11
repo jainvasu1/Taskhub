@@ -120,7 +120,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                     width: double.infinity,
                                     child: ElevatedButton(
                                       onPressed: () {
+                                        print("Button Clicked");
+
                                         if (_formKey.currentState!.validate()) {
+                                          print("Validation Passed");
+
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
