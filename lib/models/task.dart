@@ -29,7 +29,7 @@ class Task {
     this.description = '',
     this.isCompleted = false,
     this.priority = TaskPriority.medium,
-  }) : id = id ?? _uuid.v4(),
+  }) : id = id ?? _uuid.v4(), //If id is not provided → generate a UUID
        timestamp = DateTime.now().millisecondsSinceEpoch.toString();
 
   Map<String, dynamic> toMap() {
@@ -41,10 +41,12 @@ class Task {
       'isCompleted': isCompleted,
       'priority': priority.index,
     };
-  }
+  } //Convert object → Map so it can easily access via api or json
 
   factory Task.fromMap(Map<String, dynamic> map) {
+    //Convert Map → Task object
     if (!map.containsKey('id') || !map.containsKey('title')) {
+      //Ensures required fields exist.
       throw ArgumentError('Invalid map data for Task');
     }
 
@@ -57,3 +59,6 @@ class Task {
     );
   }
 }
+
+//Safe defaults for missing values
+//Converts integer →enum using
