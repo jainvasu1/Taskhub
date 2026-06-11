@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,13 +13,37 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'TaskHub',
+
+      //THEME
       theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF21E9F3),
           brightness: Brightness.dark,
         ),
-        useMaterial3: true,
+
+        scaffoldBackgroundColor: const Color(0xFF0F172A),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFF1E293B),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
       ),
+
+      //ROUTES
+      initialRoute: '/',
+      routes: {'/': (context) => const LoginScreen()},
     );
   }
 }

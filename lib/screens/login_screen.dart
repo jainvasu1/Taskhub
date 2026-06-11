@@ -1,239 +1,149 @@
 import 'package:flutter/material.dart';
-import '../main.dart';
 
-
-class LoginScreen extends StatelessWidget{
-  const LoginPage({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formLogInkey = GlobalKey<FormState>();
-  bool rememberPassword = true;
+  final _formKey =
+      GlobalKey<FormState>(); //_formkey is used to validate the form
+
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
-      child: Column(
-        children: [
-          const Expanded(
-            flex: 1,
-            child: SizedBox(
-              height: 10,
-            ),
-          ),
-          Expanded(
-            flex: 7,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only (
-                  topLeft: Radius.circular(40.0),
-                  topRight: Radius.circular(40.0),
+    return Scaffold(
+      body: SafeArea(
+        //safe area is used for avoid ui overlap with notch, status bar etc.
+        child: SingleChildScrollView(
+          child: Center(
+            //Centers your login card on screen
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Card(
+                elevation: 5, //elevation for shadow
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
                 ),
-              ),
-
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formLogInkey,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        'Welcome Back',
+                      // Logo / Title
+                      const Text(
+                        "Welcome Back",
                         style: TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.w900,
-                          color: lightColorScheme.primary,
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
                         ),
                       ),
-                      const SizedBox(
-                        height: 40.0,
-                      ),
-                      TextFormField(
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please Enter Email';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                          label: const Text('Email'),
-                          hintText: 'Enter Email',
-                          hintStyle: const TextStyle(
-                            color: Colors.black26,
-                          ),
-                          border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 25.0,
-                      ),
-                      TextFormField(
-                        obscureText: true,
-                        obscuringCharacter: '*',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter Pssword';
-                          }
-                          return null;
-                        },
+                      const SizedBox(height: 30),
 
-                        decoration: InputDecoration(
-                          label: const Text('Password'),
-                          hintText: 'Enter Password',
-                          hintStyle: const TextStyle(
-                            color: Colors.black26,
-                          ),
-                          border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-
-                      const SizeddBox(
-                        height: 25.0,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                        children: [
-                          Row(
-                            children: [
-                              Checkbox(value: rememberPassword, onChanged: (bool? value) {
-                                setState(() {
-                                  rememberPassword = value;
-                                });
+                      //FORM
+                      Form(
+                        key: _formKey, //connect form with _formkey
+                        child: Column(
+                          children: [
+                            // Email Field
+                            TextFormField(
+                              decoration: const InputDecoration(
+                                labelText: "Email",
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  //cannot empty
+                                  return "Enter email";
+                                }
+                                if (!value.contains('@')) {
+                                  //must contain @
+                                  return "Enter valid email";
+                                }
+                                return null;
                               },
-                              activeColor: lightColorScheme.primary,
+                            ),
+                            const SizedBox(height: 20),
+
+                            // Password Field
+                            TextFormField(
+                              obscureText: true, //Hides password(***)
+                              decoration: const InputDecoration(
+                                labelText: "Password",
+                                border: OutlineInputBorder(),
                               ),
-                              const Text(
-                                'Remember me',
-                                style: TextStyle(
-                                  color: Colors.black45,
-                                ),
-                              ),
-                            ],
-                          ),
-                          GestureDetector( ////it is widget in flutter, it helps makes the non-clickable widget to clickable
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Enter password";
+                                }
+                                if (value.length < 6) {
+                                  return "Min 6 characters required";
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 15),
 
-                            child: Text(
-                              'Forget password?',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: lightColorScheme.primary,
-                              ),
-                            ), 
-
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(
-                        height: 25.0,
-                      ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: lightColorScheme.primary,
-                      ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (_formLogInkey.currentState!.validate() && rememberPassword) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar (content: Text('Processing Data'),
-                                ),
-                              );
-                            } else if(!rememberPassword) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text(
-                                  'Please agree to the processing of personal data'
-                                )),
-                              );
-                            }
-                          },
-                          child: const Text('Sign up'),
-                           ),
-                      ),
-                      const SizedBox(
-                        height: 25.0,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(child: Divider(
-                            color: Colors.grey.withOpacity(0.5),
-                            thickness: 1,
-                            height: 30,
-                            indent: 20,
-                            endIndent: 20,
-                          ),
-                          ),
-                          const Padding(padding: EdgeInsets.symmetric(
-                            vertical: 0,
-                            horizontal: 10,
-                          ),
-                          
-                          ),
-
-                          //dont have an account
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                'Don\'t have an account? ',
-                                style: TextStyle(
-                                  color: Colors.black45,
-                                ),
-                              ),
-
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(context,
-                                   MaterialPageRoute(builder: (e) => SignUpScreen(),),
-                                   );
+                            //Forgot Password
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Forgot Password clicked"),
+                                    ),
+                                  );
                                 },
-                                child: Text('Sign up',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: lightColorScheme.primary,
-                                ),
-                                ),
+                                child: const Text("Forgot Password?"),
                               ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 20.0,
-                          ),
-                          )
-                        ],
-                      )
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            //Sign In Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate()) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Signing in..."),
+                                      ),
+                                    );
+
+                                    Navigator.pushReplacementNamed(
+                                      context,
+                                      '/home',
+                                    ); //it uses for routing to home screen if you successfully login then it redirect to the login
+                                  }
+                                },
+                                child: const Text("Sign In"),
+                              ),
+                            ),
+
+                            const SizedBox(height: 15),
+
+                            // Bottom Sign Up
+                            TextButton(
+                              onPressed: () {},
+                              child: const Text(
+                                "Don't have an account? Sign up",
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
-          )
-        ],
-      )
-    )
+          ),
+        ),
+      ),
+    );
   }
 }
