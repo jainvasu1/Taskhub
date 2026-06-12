@@ -134,10 +134,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-// ============================================================================
-//                                EDIT PROFILE SCREEN
-// ============================================================================
-
 class EditProfileScreen extends StatefulWidget {
   final String name;
   final String position;
