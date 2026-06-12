@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taskhub/screens/dashboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -99,15 +100,6 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 ///  Dummy Screens
-
-class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text("Dashboard Screen"));
-  }
-}
 
 class TasksScreen extends StatelessWidget {
   const TasksScreen({super.key});
