@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taskhub/screens/dashboard_screen.dart';
+import 'package:taskhub/screens/tasks_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -60,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           //Tasks with badge
           BottomNavigationBarItem(
+            label: 'Tasks',
             icon: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -86,7 +88,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
               ],
             ),
-            label: 'Tasks',
           ),
 
           const BottomNavigationBarItem(
@@ -100,15 +101,6 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 ///  Dummy Screens
-
-class TasksScreen extends StatelessWidget {
-  const TasksScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text("Tasks Screen"));
-  }
-}
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

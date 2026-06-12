@@ -23,7 +23,7 @@ class DashboardScreen extends StatelessWidget {
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Colors.blue, Colors.indigo],
+                      colors: [Colors.cyan, Colors.blue],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -47,7 +47,7 @@ class DashboardScreen extends StatelessWidget {
                   child: Text(
                     "Good morning, TaskHub!",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -64,7 +64,7 @@ class DashboardScreen extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Colors.black,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
