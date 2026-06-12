@@ -1,16 +1,5 @@
 import 'package:flutter/material.dart';
-
-class ProfileData {
-  String name;
-  String position;
-  String photoUrl;
-
-  ProfileData({
-    required this.name,
-    required this.position,
-    required this.photoUrl,
-  });
-}
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -20,11 +9,43 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  ProfileData data = ProfileData(
-    name: "Sonu Agarwal",
-    position: "Developer",
-    photoUrl: "https://i.pravatar.cc/150?img=3",
-  );
+  String name = "Sonu Agarwal";
+  String position = "Developer";
+  String photoUrl = "https://i.pravatar.cc/150?img=3";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      name = prefs.getString("profileName") ?? name;
+      position = prefs.getString("profilePosition") ?? position;
+      photoUrl = prefs.getString("profilePhoto") ?? photoUrl;
+    });
+  }
+
+  Future<void> _saveProfile(
+    String newName,
+    String newPos,
+    String newPhoto,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString("profileName", newName);
+    await prefs.setString("profilePosition", newPos);
+    await prefs.setString("profilePhoto", newPhoto);
+
+    setState(() {
+      name = newName;
+      position = newPos;
+      photoUrl = newPhoto;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,19 +56,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            GestureDetector(
-              onTap: () {},
-              onLongPress: () {},
-              child: CircleAvatar(
-                radius: 50,
-                backgroundImage: NetworkImage(data.photoUrl),
-              ),
-            ),
+            // Profile photo
+            CircleAvatar(radius: 50, backgroundImage: NetworkImage(photoUrl)),
 
             const SizedBox(height: 16),
 
+            // Name
             Text(
-              data.name,
+              name,
               style: textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -55,61 +71,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 4),
 
+            // Position
             Text(
-              data.position,
+              position,
               style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
             ),
 
             const SizedBox(height: 20),
 
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      Text(
-                        "24",
-                        style: textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text("Posts", style: textTheme.bodySmall),
-                    ],
-                  ),
-                ),
-                Container(height: 40, width: 1, color: Colors.grey),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Text(
-                        "520",
-                        style: textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text("Followers", style: textTheme.bodySmall),
-                    ],
-                  ),
-                ),
-                Container(height: 40, width: 1, color: Colors.grey),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Text(
-                        "180",
-                        style: textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text("Following", style: textTheme.bodySmall),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
+            // Info Card
             Card(
               child: Column(
                 children: const [
@@ -135,15 +105,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             OutlinedButton(
               onPressed: () async {
+                // Open Edit Screen
                 final updated = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => EditProfileScreen(data: data),
+                    builder: (_) => EditProfileScreen(
+                      name: name,
+                      position: position,
+                      photoUrl: photoUrl,
+                    ),
                   ),
                 );
 
-                if (updated != null && updated is ProfileData) {
-                  setState(() => data = updated);
+                if (updated != null && updated is Map) {
+                  _saveProfile(
+                    updated["name"],
+                    updated["position"],
+                    updated["photo"],
+                  );
                 }
               },
               child: const Text("Edit Profile"),
@@ -155,9 +134,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
+// ============================================================================
+//                                EDIT PROFILE SCREEN
+// ============================================================================
+
 class EditProfileScreen extends StatefulWidget {
-  final ProfileData data;
-  const EditProfileScreen({super.key, required this.data});
+  final String name;
+  final String position;
+  final String photoUrl;
+
+  const EditProfileScreen({
+    super.key,
+    required this.name,
+    required this.position,
+    required this.photoUrl,
+  });
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -171,26 +162,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController(text: widget.data.name);
-    positionController = TextEditingController(text: widget.data.position);
-    photoUrl = widget.data.photoUrl;
+    nameController = TextEditingController(text: widget.name);
+    positionController = TextEditingController(text: widget.position);
+    photoUrl = widget.photoUrl;
+  }
+
+  void changePhoto() {
+    // For now choosing random avatar
+    setState(() {
+      photoUrl =
+          "https://i.pravatar.cc/150?img=${DateTime.now().millisecond % 70}";
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Edit Profile")),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             GestureDetector(
-              onTap: () {
-                setState(() {
-                  photoUrl = "https://i.pravatar.cc/150?img=5";
-                });
-              },
+              onTap: changePhoto,
               child: CircleAvatar(
                 radius: 50,
                 backgroundImage: NetworkImage(photoUrl),
@@ -199,7 +193,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             const SizedBox(height: 20),
 
-            // --- Edit Name ---
             TextField(
               controller: nameController,
               decoration: const InputDecoration(
@@ -210,7 +203,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             const SizedBox(height: 20),
 
-            // --- Edit Position ---
             TextField(
               controller: positionController,
               decoration: const InputDecoration(
@@ -224,17 +216,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(
-                    context,
-                    ProfileData(
-                      name: nameController.text,
-                      position: positionController.text,
-                      photoUrl: photoUrl,
-                    ),
-                  );
-                },
                 child: const Text("Save"),
+                onPressed: () {
+                  Navigator.pop(context, {
+                    "name": nameController.text,
+                    "position": positionController.text,
+                    "photo": photoUrl,
+                  });
+                },
               ),
             ),
           ],
