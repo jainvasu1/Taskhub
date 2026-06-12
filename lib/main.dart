@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taskhub/screens/setting_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/add_edit_task_screen.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
         '/': (_) => const LoginScreen(),
         '/home': (_) => const HomeScreen(),
         '/add-task': (_) => const AddTaskScreen(),
+        '/settings': (_) => const SettingsScreen(),
       },
     );
   }

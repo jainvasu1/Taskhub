@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taskhub/screens/dashboard_screen.dart';
 import 'package:taskhub/screens/tasks_screen.dart';
+import 'package:taskhub/screens/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,21 +11,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex =
-      0; // //This variable remembers which screen is currently selected.
+  int _selectedIndex = 0;
+  final int incompleteTasks = 3;
 
-  final int incompleteTasks =
-      3; //This stores the number of incomplete tasks. It marked final so that can't change.
-
-  // screens list
   final List<Widget> _screens = const [
-    //this as an array containing three pages
     DashboardScreen(),
     TasksScreen(),
     ProfileScreen(),
   ];
 
-  // titles for AppBar
   final List<String> _titles = ['Dashboard', 'Tasks', 'Profile'];
 
   void _onItemTapped(int index) {
@@ -37,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[_selectedIndex]), // dynamic title
+        title: Text(_titles[_selectedIndex]),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -48,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
 
-      body: _screens[_selectedIndex], // show selected screen
+      body: _screens[_selectedIndex],
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -59,14 +54,12 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Dashboard',
           ),
 
-          //Tasks with badge
           BottomNavigationBarItem(
             label: 'Tasks',
             icon: Stack(
               clipBehavior: Clip.none,
               children: [
                 const Icon(Icons.task),
-
                 if (incompleteTasks > 0)
                   Positioned(
                     right: -6,
@@ -97,16 +90,5 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
-  }
-}
-
-///  Dummy Screens
-
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text("Profile Screen"));
   }
 }
