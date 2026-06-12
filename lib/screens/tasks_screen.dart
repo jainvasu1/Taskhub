@@ -114,6 +114,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   children: ['All', 'Pending', 'Completed']
                       .map(
                         (f) => ChoiceChip(
+                          //choicechip represents a single choice from the set.(all/pending/completed => filter.)
                           label: Text(f),
                           selected: _filter == f,
                           onSelected: (_) {
