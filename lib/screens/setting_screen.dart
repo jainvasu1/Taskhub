@@ -12,24 +12,29 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _darkMode = false;
   String _displayName = "";
-  late TextEditingController _nameController;
+  late TextEditingController
+  _nameController; //Controller for the text field (so it can show and update input)
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
-    _loadPrefs();
+    _nameController =
+        TextEditingController(); // Creates a controller for the text input
+    _loadPrefs(); //Loads saved settings from device storage using _loadPrefs() once the widget is created
   }
 
   Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs =
+        await SharedPreferences.getInstance(); //Gets access to SharedPreferences
 
     if (!mounted) return;
 
     setState(() {
-      _darkMode = prefs.getBool('darkMode') ?? false;
+      _darkMode =
+          prefs.getBool('darkMode') ?? false; //Reads darkMode and displayName
       _displayName = prefs.getString('displayName') ?? "User";
-      _nameController.text = _displayName;
+      _nameController.text =
+          _displayName; //Updates state variables so the UI reflects stored values
     });
   }
 
