@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taskhub/screens/dashboard_screen.dart';
 import 'package:taskhub/screens/tasks_screen.dart';
 import 'package:taskhub/screens/profile_screen.dart';
+import 'package:taskhub/screens/task_counter.dart'; //  ADDED for dynamic badge
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,7 +13,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  final int incompleteTasks = 3;
+  // final int incompleteTasks = 3; REMOVED HARDCODED VALUE
 
   final List<Widget> _screens = const [
     DashboardScreen(),
@@ -32,7 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[_selectedIndex]),
+        title: Text(
+          _titles[_selectedIndex],
+        ), //_selectedIndex changes when bottom tab is clicked
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -54,32 +57,38 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Dashboard',
           ),
 
+          // UPDATED: dynamic badge using ValueNotifier
           BottomNavigationBarItem(
             label: 'Tasks',
-            icon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Icon(Icons.task),
-                if (incompleteTasks > 0)
-                  Positioned(
-                    right: -6,
-                    top: -6,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        '$incompleteTasks',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
+            icon: ValueListenableBuilder<int>(
+              valueListenable: incompleteTaskCount,
+              builder: (context, count, child) {
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(Icons.task),
+                    if (count > 0)
+                      Positioned(
+                        right: -6,
+                        top: -6,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '$count',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-              ],
+                  ],
+                );
+              },
             ),
           ),
 

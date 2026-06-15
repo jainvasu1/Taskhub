@@ -19,6 +19,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   Task? existing;
 
+  // ✅ FIX: flag to prevent multiple initialization
+  bool _isInit = true;
+
   @override
   void initState() {
     super.initState();
@@ -29,15 +32,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args = ModalRoute.of(context)!.settings.arguments;
 
-    if (args != null && args is Task) {
-      existing = args;
+    // ✅ FIX: run only once
+    if (_isInit) {
+      final args = ModalRoute.of(context)!.settings.arguments;
 
-      _titleController.text = args.title;
-      _descController.text = args.description;
-      _priority = args.priority;
-      _isCompleted = args.isCompleted;
+      if (args != null && args is Task) {
+        existing = args;
+
+        _titleController.text = args.title;
+        _descController.text = args.description;
+        _priority = args.priority;
+        _isCompleted = args.isCompleted;
+      }
+
+      _isInit = false; // ✅ important
     }
   }
 

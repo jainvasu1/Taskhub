@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,6 +11,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey =
       GlobalKey<FormState>(); //_formkey is used to validate the form
+
+  bool rememberMe = false; // added for remember me
 
   @override
   Widget build(BuildContext context) {
@@ -115,15 +118,43 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                   const SizedBox(height: 10),
 
+                                  // ✅ Remember Me Checkbox
+                                  Row(
+                                    children: [
+                                      Checkbox(
+                                        value: rememberMe,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            rememberMe = value!;
+                                          });
+                                        },
+                                      ),
+                                      const Text("Remember Me"),
+                                    ],
+                                  ),
+
+                                  const SizedBox(height: 10),
+
                                   //Sign In Button
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
-                                      onPressed: () {
+                                      onPressed: () async {
                                         print("Button Clicked");
 
                                         if (_formKey.currentState!.validate()) {
                                           print("Validation Passed");
+
+                                          final prefs =
+                                              await SharedPreferences.getInstance();
+
+                                          if (rememberMe) {
+                                            // ✅ Save login state only if checked
+                                            await prefs.setBool(
+                                              'isLoggedIn',
+                                              true,
+                                            );
+                                          }
 
                                           ScaffoldMessenger.of(
                                             context,

@@ -54,8 +54,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _saveDarkMode(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('darkMode', value);
+    //This function is asynchronous and doesn’t return any value.
+    final prefs =
+        await SharedPreferences.getInstance(); //Gets access to local storage.
+    await prefs.setBool(
+      'darkMode',
+      value,
+    ); //Saves a boolean value under the key 'darkMode'.
   }
 
   Future<void> _resetAll() async {
@@ -96,7 +101,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _logout() {
-    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/',
+      (route) => false,
+    ); //Basically resets navigation stack
   }
 
   @override
@@ -126,7 +135,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             ListTile(
               leading: const Icon(Icons.person),
-              title: Text("Display Name: $_displayName"),
+              title: Text(
+                "Display Name: $_displayName",
+              ), //Shows current stored name
             ),
 
             const SizedBox(height: 20),

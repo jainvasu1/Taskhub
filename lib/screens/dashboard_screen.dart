@@ -68,7 +68,7 @@ class DashboardScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      getTodayDate(),
+                      getTodayDate(), //fetching the todays date.
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
