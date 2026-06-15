@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/task.dart';
 import '../services/storage_service.dart';
+import 'package:taskhub/screens/task_counter.dart'; // ADDED
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -10,7 +11,8 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  late Future<List<Task>> _tasksFuture;
+  late Future<List<Task>>
+  _tasksFuture; //late means you are intializing the variable inside initstate and furure means list of tasks added in future or store in future in sp.
   List<Task> _tasks = [];
   String _filter = 'All';
 
@@ -20,25 +22,28 @@ class _TasksScreenState extends State<TasksScreen> {
     _tasksFuture = StorageService.loadTasks();
   }
 
+  // COMMON METHOD (CLEAN CODE)
+  void updateBadge() {
+    incompleteTaskCount.value = _tasks.where((t) => !t.isCompleted).length;
+  }
+
   Future<void> _refreshTasks() async {
     final data = await StorageService.loadTasks();
     setState(() {
       _tasks = data;
     });
+    updateBadge(); //  ADDED
   }
 
   List<Task> get filteredTasks {
     if (_filter == 'Pending') {
       return _tasks.where((t) => !t.isCompleted).toList();
     } else if (_filter == 'Completed') {
-      return _tasks
-          .where((t) => t.isCompleted)
-          .toList(); ////where helps to filter out the data
+      return _tasks.where((t) => t.isCompleted).toList();
     }
     return _tasks;
   }
 
-  // FIXED: using Task instead of index to avoid mismatch with filtered list
   void _deleteTask(Task task) {
     final index = _tasks.indexOf(task);
     final removed = _tasks[index];
@@ -48,9 +53,9 @@ class _TasksScreenState extends State<TasksScreen> {
     });
 
     StorageService.saveTasks(_tasks);
+    updateBadge(); // ADDED
 
     ScaffoldMessenger.of(context).showSnackBar(
-      //it manages snackbar(At the bottom) and materialBanner at the top.
       SnackBar(
         content: const Text("Task deleted"),
         action: SnackBarAction(
@@ -60,6 +65,7 @@ class _TasksScreenState extends State<TasksScreen> {
               _tasks.insert(index, removed);
             });
             StorageService.saveTasks(_tasks);
+            updateBadge(); // ADDED
           },
         ),
       ),
@@ -70,15 +76,16 @@ class _TasksScreenState extends State<TasksScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder<List<Task>>(
-        //here FutureBuilder is used to create widget based on the latest snapshot of interaction with a future.
-        future:
-            _tasksFuture, //here tasksFuture is private bcz it cant conflict with other tasks id or title.
+        future: _tasksFuture,
         builder: (context, snapshot) {
+          // LOADING STATE
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
+          // ERROR STATE
           if (snapshot.hasError) {
+            //snapshot means current state of future.
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -97,10 +104,13 @@ class _TasksScreenState extends State<TasksScreen> {
             );
           }
 
+          // FIRST LOAD
           if (_tasks.isEmpty && snapshot.hasData) {
             _tasks = snapshot.data!;
+            updateBadge(); // ADDED
           }
 
+          // EMPTY STATE
           if (_tasks.isEmpty) {
             return const Center(child: Text("No Tasks Yet"));
           }
@@ -109,12 +119,12 @@ class _TasksScreenState extends State<TasksScreen> {
             onRefresh: _refreshTasks,
             child: Column(
               children: [
+                // FILTER ROW
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: ['All', 'Pending', 'Completed']
                       .map(
                         (f) => ChoiceChip(
-                          //choicechip represents a single choice from the set.(all/pending/completed => filter.)
                           label: Text(f),
                           selected: _filter == f,
                           onSelected: (_) {
@@ -127,6 +137,7 @@ class _TasksScreenState extends State<TasksScreen> {
                       .toList(),
                 ),
 
+                // TASK LIST
                 Expanded(
                   child: ListView.builder(
                     itemCount: filteredTasks.length,
@@ -135,7 +146,11 @@ class _TasksScreenState extends State<TasksScreen> {
 
                       return Dismissible(
                         key: ValueKey(task.id),
+
+                        // background color on swipe
                         background: Container(color: Colors.red),
+
+                        // confirm dialog before delete
                         confirmDismiss: (_) async {
                           return await showDialog(
                             context: context,
@@ -156,7 +171,6 @@ class _TasksScreenState extends State<TasksScreen> {
                           );
                         },
 
-                        // FIXED
                         onDismissed: (_) => _deleteTask(task),
 
                         child: TaskTile(
@@ -164,8 +178,29 @@ class _TasksScreenState extends State<TasksScreen> {
                           onChanged: () {
                             setState(() {});
                             StorageService.saveTasks(_tasks);
+                            updateBadge(); // ADDED
                           },
                           onDelete: () => _deleteTask(task),
+
+                          //  EDIT VIA TAP
+                          onTap: () async {
+                            final updatedTask = await Navigator.pushNamed(
+                              context,
+                              '/add-task',
+                              arguments: task,
+                            );
+
+                            if (updatedTask != null && updatedTask is Task) {
+                              setState(() {
+                                task.title = updatedTask.title;
+                                task.description = updatedTask.description;
+                                task.priority = updatedTask.priority;
+                              });
+
+                              StorageService.saveTasks(_tasks);
+                              updateBadge();
+                            }
+                          },
                         ),
                       );
                     },
@@ -186,6 +221,7 @@ class _TasksScreenState extends State<TasksScreen> {
               _tasks.add(newTask);
             });
             StorageService.saveTasks(_tasks);
+            updateBadge(); // ADDED
           }
         },
         child: const Icon(Icons.add),
@@ -199,18 +235,22 @@ class TaskTile extends StatelessWidget {
   final Task task;
   final VoidCallback onChanged;
   final VoidCallback onDelete;
+  final VoidCallback onTap; // ADDED
 
   const TaskTile({
     super.key,
     required this.task,
     required this.onChanged,
     required this.onDelete,
+    required this.onTap, // ADDED
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
+        onTap: onTap, //  TAP SUPPORT
+
         leading: Checkbox(
           value: task.isCompleted,
           onChanged: (value) {
@@ -218,52 +258,24 @@ class TaskTile extends StatelessWidget {
             onChanged();
           },
         ),
+
         title: Text(
           task.title,
           style: TextStyle(
             decoration: task.isCompleted ? TextDecoration.lineThrough : null,
           ),
         ),
+
+        // priority label
         subtitle: Text(task.priority.label),
+
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () async {
-                final updatedTask = await Navigator.pushNamed(
-                  context,
-                  '/add-task',
-                  arguments: task,
-                );
-
-                if (updatedTask != null && updatedTask is Task) {
-                  task.title = updatedTask.title;
-                  task.description = updatedTask.description;
-                  task.priority = updatedTask.priority;
-
-                  onChanged();
-                }
-              },
-            ),
+            IconButton(icon: const Icon(Icons.edit), onPressed: onTap),
             IconButton(icon: const Icon(Icons.delete), onPressed: onDelete),
           ],
         ),
-        onTap: () async {
-          final updatedTask = await Navigator.pushNamed(
-            context,
-            '/add-task',
-            arguments: task,
-          );
-
-          if (updatedTask != null && updatedTask is Task) {
-            task.title = updatedTask.title;
-            task.description = updatedTask.description;
-            task.priority = updatedTask.priority;
-
-            onChanged();
-          }
-        },
       ),
     );
   }

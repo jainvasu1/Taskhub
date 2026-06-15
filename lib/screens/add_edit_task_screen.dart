@@ -19,6 +19,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   Task? existing;
 
+  // ✅ FIX: flag to prevent multiple initialization
+  bool _isInit = true;
+
   @override
   void initState() {
     super.initState();
@@ -29,15 +32,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args = ModalRoute.of(context)!.settings.arguments;
 
-    if (args != null && args is Task) {
-      existing = args;
+    // ✅ FIX: run only once
+    if (_isInit) {
+      final args = ModalRoute.of(context)!.settings.arguments;
 
-      _titleController.text = args.title;
-      _descController.text = args.description;
-      _priority = args.priority;
-      _isCompleted = args.isCompleted;
+      if (args != null && args is Task) {
+        existing = args;
+
+        _titleController.text = args.title;
+        _descController.text = args.description;
+        _priority = args.priority;
+        _isCompleted = args.isCompleted;
+      }
+
+      _isInit = false; // ✅ important
     }
   }
 
@@ -68,63 +77,87 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(edit ? "Edit Task" : "Add Task")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: "Title",
-                  border: OutlineInputBorder(),
+
+      // FIX: prevents bottom overflow when keyboard appears
+      resizeToAvoidBottomInset: true,
+
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            // FIX: ensures content moves above keyboard
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(
+                    labelText: "Title",
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return "Enter title";
+                    if (v.length < 3) return "Minimum 3 characters";
+                    return null;
+                  },
                 ),
-                validator: (v) {
-                  if (v == null || v.isEmpty) return "Enter title";
-                  if (v.length < 3) return "Minimum 3 characters";
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _descController,
-                decoration: const InputDecoration(
-                  labelText: "Description",
-                  border: OutlineInputBorder(),
+
+                const SizedBox(height: 20),
+
+                TextFormField(
+                  controller: _descController,
+                  decoration: const InputDecoration(
+                    labelText: "Description",
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              DropdownButtonFormField<TaskPriority>(
-                value: _priority,
-                items: TaskPriority.values
-                    .map(
-                      (p) => DropdownMenuItem(value: p, child: Text(p.label)),
-                    )
-                    .toList(),
-                onChanged: (v) => setState(() => _priority = v!),
-                decoration: const InputDecoration(border: OutlineInputBorder()),
-              ),
-              const SizedBox(height: 20),
-              SwitchListTile(
-                value: _isCompleted,
-                onChanged: (v) => setState(() => _isCompleted = v),
-                title: const Text("Completed"),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: save,
-                  icon: const Icon(Icons.save),
-                  label: const Text("Save Task"),
+
+                const SizedBox(height: 20),
+
+                DropdownButtonFormField<TaskPriority>(
+                  value: _priority,
+                  items: TaskPriority.values
+                      .map(
+                        (p) => DropdownMenuItem(value: p, child: Text(p.label)),
+                      )
+                      .toList(),
+                  onChanged: (v) => setState(() => _priority = v!),
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Cancel"),
-              ),
-            ],
+
+                const SizedBox(height: 20),
+
+                SwitchListTile(
+                  value: _isCompleted,
+                  onChanged: (v) => setState(() => _isCompleted = v),
+                  title: const Text("Completed"),
+                ),
+
+                const SizedBox(height: 20),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: save,
+                    icon: const Icon(Icons.save),
+                    label: const Text("Save Task"),
+                  ),
+                ),
+
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Cancel"),
+                ),
+              ],
+            ),
           ),
         ),
       ),

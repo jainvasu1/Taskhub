@@ -1,0 +1,173 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/storage_service.dart';
+
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _darkMode = false;
+  String _displayName = "";
+  late TextEditingController
+  _nameController; //Controller for the text field (so it can show and update input)
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController =
+        TextEditingController(); // Creates a controller for the text input
+    _loadPrefs(); //Loads saved settings from device storage using _loadPrefs() once the widget is created
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs =
+        await SharedPreferences.getInstance(); //Gets access to SharedPreferences
+
+    if (!mounted) return;
+
+    setState(() {
+      _darkMode =
+          prefs.getBool('darkMode') ?? false; //Reads darkMode and displayName
+      _displayName = prefs.getString('displayName') ?? "User";
+      _nameController.text =
+          _displayName; //Updates state variables so the UI reflects stored values
+    });
+  }
+
+  Future<void> _saveName() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('displayName', _nameController.text);
+
+    if (!mounted) return;
+
+    setState(() {
+      _displayName = _nameController.text;
+    });
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Name updated")));
+  }
+
+  Future<void> _saveDarkMode(bool value) async {
+    //This function is asynchronous and doesn’t return any value.
+    final prefs =
+        await SharedPreferences.getInstance(); //Gets access to local storage.
+    await prefs.setBool(
+      'darkMode',
+      value,
+    ); //Saves a boolean value under the key 'darkMode'.
+  }
+
+  Future<void> _resetAll() async {
+    final confirm = await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("This will delete all tasks. Continue?"),
+        actions: [
+          TextButton(
+            child: const Text("Cancel"),
+            onPressed: () => Navigator.pop(context, false),
+          ),
+          TextButton(
+            child: const Text("Yes"),
+            onPressed: () => Navigator.pop(context, true),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await StorageService.clearTasks();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      if (!mounted) return;
+
+      setState(() {
+        _darkMode = false;
+        _displayName = "User";
+        _nameController.text = "User";
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("All data reset")));
+    }
+  }
+
+  void _logout() {
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/',
+      (route) => false,
+    ); //Basically resets navigation stack
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Settings")),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            SwitchListTile(
+              title: const Text("Dark Mode"),
+              value: _darkMode,
+              onChanged: (value) {
+                setState(() => _darkMode = value);
+                _saveDarkMode(value);
+              },
+            ),
+
+            const SizedBox(height: 20),
+
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: Text(
+                "Display Name: $_displayName",
+              ), //Shows current stored name
+            ),
+
+            const SizedBox(height: 20),
+
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: "Update Display Name",
+                border: OutlineInputBorder(),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            ElevatedButton(onPressed: _saveName, child: const Text("Save")),
+
+            const SizedBox(height: 30),
+
+            ElevatedButton(
+              onPressed: _resetAll,
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text("Reset All Data"),
+            ),
+
+            const SizedBox(height: 40),
+
+            TextButton(onPressed: _logout, child: const Text("Logout")),
+          ],
+        ),
+      ),
+    );
+  }
+}
