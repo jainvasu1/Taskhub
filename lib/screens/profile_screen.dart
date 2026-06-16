@@ -51,6 +51,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+  // Stats
+  Widget _buildStat(String count, String label) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(
+            count,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          const SizedBox(height: 4),
+          Text(label, style: const TextStyle(color: Colors.grey)),
+        ],
+      ),
+    );
+  }
+
+  Widget _divider() {
+    return const SizedBox(height: 40, child: VerticalDivider(thickness: 1));
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -60,8 +80,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Profile photo
-            CircleAvatar(radius: 50, backgroundImage: NetworkImage(photoUrl)),
+            // Avatar with GestureDetector
+            GestureDetector(
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Tap to change photo")),
+                );
+              },
+              onLongPress: () async {
+                final confirm = await showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: const Text("Remove photo?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text("Cancel"),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text("Remove"),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (!mounted) return;
+
+                if (confirm == true) {
+                  setState(() {
+                    photoUrl = "https://i.pravatar.cc/150?img=3";
+                  });
+                }
+              },
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: NetworkImage(photoUrl),
+              ),
+            ),
 
             const SizedBox(height: 16),
 
@@ -79,6 +135,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text(
               position,
               style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Stats Row
+            Row(
+              children: [
+                _buildStat("120", "Posts"),
+                _divider(),
+                _buildStat("5.2K", "Followers"),
+                _divider(),
+                _buildStat("300", "Following"),
+              ],
             ),
 
             const SizedBox(height: 20),
@@ -107,9 +176,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 20),
 
+            // Edit Profile (SnackBar + Navigation)
             OutlinedButton(
               onPressed: () async {
-                // Open Edit Screen
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Edit Profile clicked")),
+                );
+
                 final updated = await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -124,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (!mounted) return;
 
                 if (updated != null && updated is Map) {
-                  _saveProfile(
+                  await _saveProfile(
                     updated["name"],
                     updated["position"],
                     updated["photo"],
@@ -140,6 +213,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
+// Edit Profile Screen (kept intact)
 class EditProfileScreen extends StatefulWidget {
   final String name;
   final String position;
@@ -170,7 +244,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void changePhoto() {
-    // For now choosing random avatar
     setState(() {
       photoUrl =
           "https://i.pravatar.cc/150?img=${DateTime.now().millisecond % 70}";
@@ -197,20 +270,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(
-                labelText: "Name",
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: "Name"),
             ),
 
             const SizedBox(height: 20),
 
             TextField(
               controller: positionController,
-              decoration: const InputDecoration(
-                labelText: "Position",
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: "Position"),
             ),
 
             const SizedBox(height: 30),
