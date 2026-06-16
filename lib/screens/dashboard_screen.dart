@@ -47,7 +47,7 @@ class DashboardScreen extends StatelessWidget {
                   child: Text(
                     "Good morning, TaskHub!",
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -64,7 +64,7 @@ class DashboardScreen extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -174,7 +174,7 @@ class StatCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               title,
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
+              style: const TextStyle(fontSize: 14, color: Colors.black),
             ),
           ],
         ),

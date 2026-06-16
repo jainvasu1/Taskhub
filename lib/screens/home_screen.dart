@@ -80,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Text(
                             '$count',
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: Colors.blue,
                               fontSize: 10,
                             ),
                           ),
