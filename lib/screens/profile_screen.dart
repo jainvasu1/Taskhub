@@ -22,6 +22,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadProfile() async {
     final prefs = await SharedPreferences.getInstance();
 
+    if (!mounted) return;
+
     setState(() {
       name = prefs.getString("profileName") ?? name;
       position = prefs.getString("profilePosition") ?? position;
@@ -39,6 +41,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await prefs.setString("profileName", newName);
     await prefs.setString("profilePosition", newPos);
     await prefs.setString("profilePhoto", newPhoto);
+
+    if (!mounted) return;
 
     setState(() {
       name = newName;
@@ -116,6 +120,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 );
+
+                if (!mounted) return;
 
                 if (updated != null && updated is Map) {
                   _saveProfile(

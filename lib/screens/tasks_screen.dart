@@ -29,6 +29,9 @@ class _TasksScreenState extends State<TasksScreen> {
 
   Future<void> _refreshTasks() async {
     final data = await StorageService.loadTasks();
+
+    if (!mounted) return;
+
     setState(() {
       _tasks = data;
     });
@@ -190,6 +193,8 @@ class _TasksScreenState extends State<TasksScreen> {
                               arguments: task,
                             );
 
+                            if (!mounted) return;
+
                             if (updatedTask != null && updatedTask is Task) {
                               setState(() {
                                 task.title = updatedTask.title;
@@ -215,6 +220,8 @@ class _TasksScreenState extends State<TasksScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final newTask = await Navigator.pushNamed(context, '/add-task');
+
+          if (!mounted) return;
 
           if (newTask != null && newTask is Task) {
             setState(() {
