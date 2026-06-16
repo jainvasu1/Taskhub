@@ -140,10 +140,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                     width: double.infinity,
                                     child: ElevatedButton(
                                       onPressed: () async {
-                                        print("Button Clicked");
+                                        //print("Button Clicked");
 
                                         if (_formKey.currentState!.validate()) {
-                                          print("Validation Passed");
+                                          //print("Validation Passed");
 
                                           final prefs =
                                               await SharedPreferences.getInstance();

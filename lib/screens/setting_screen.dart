@@ -100,12 +100,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  void _logout() {
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/',
-      (route) => false,
-    ); //Basically resets navigation stack
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setBool('isLoggedIn', false); // FIX
+
+    if (!mounted) return;
+
+    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
   }
 
   @override
